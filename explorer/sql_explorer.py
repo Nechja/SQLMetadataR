@@ -664,15 +664,48 @@ class SQLExplorer:
         finally:
             self.close()
     
-    def run_workflow(self, output=None, sample_rows=3, max_column_values=10, 
-                    execute_queries=True, query_result_limit=5):
+    def run_workflow(self, output=None, schema_output=None, sample_rows=3, max_column_values=10, 
+                     execute_queries=True, query_result_limit=5, semantic_output=True, 
+                     table_dict_path=None, embedding_output=True, nl_descriptions_output=False):
         """
-        Run the complete metadata extraction workflow and save results to a file.
+        Run the complete metadata extraction workflow and save results to files.
+        
+        Args:
+            output: Path for full metadata JSON output
+            schema_output: Path for schema-only JSON output
+            sample_rows: Number of sample rows to include per table
+            max_column_values: Maximum number of distinct values to sample per column
+            execute_queries: Whether to execute example queries
+            query_result_limit: Number of result rows to include for executed queries
+            semantic_output: Path for semantic context or True to use default path
+            table_dict_path: Path to table dictionary JSON with business context
+            embedding_output: Path for embedding-ready data or True to use default path
+            nl_descriptions_output: Path for natural language descriptions or False to skip
         """
         # Set default output file path if none provided
         if output is None:
             base_name = os.path.splitext(os.path.basename(self.db_path))[0]
             output = f"{base_name}_metadata.json"
+        
+        # Set default schema output path if none provided
+        if schema_output is None:
+            base_name = os.path.splitext(os.path.basename(self.db_path))[0]
+            schema_output = f"{base_name}_schema.json"
+        
+        # Set default semantic output path if requested but none provided
+        if semantic_output is True:
+            base_name = os.path.splitext(os.path.basename(self.db_path))[0]
+            semantic_output = f"{base_name}_semantic.json"
+        
+        # Set default embedding output path if requested but none provided
+        if embedding_output is True:
+            base_name = os.path.splitext(os.path.basename(self.db_path))[0]
+            embedding_output = f"{base_name}_embedding_data.json"
+        
+        # Set default NL descriptions output path if requested but none provided
+        if nl_descriptions_output is True:
+            base_name = os.path.splitext(os.path.basename(self.db_path))[0]
+            nl_descriptions_output = f"{base_name}_nl_descriptions.json"
         
         # Extract metadata
         db = self.extract_metadata(
@@ -682,11 +715,39 @@ class SQLExplorer:
             query_result_limit=query_result_limit
         )
         
-        # Save to file
+        # Save full metadata to file
         db.save_to_file(output)
         
-        return db
+        # Save just the schema information
+        db.save_schema_to_file(schema_output)
         
+        print(f"Full metadata saved to: {output}")
+        print(f"Schema only saved to: {schema_output}")
+        
+        # Process semantic metadata if requested
+        if semantic_output or embedding_output or nl_descriptions_output:
+            from .semantic_processor import SemanticMetadataProcessor
+            
+            # Create semantic processor
+            semantic_processor = SemanticMetadataProcessor(db, table_dict_path)
+            
+            # Save semantic context if requested
+            if semantic_output:
+                semantic_processor.save_to_file(semantic_output)
+                print(f"Semantic context saved to: {semantic_output}")
+            
+            # Save embedding data if requested
+            if embedding_output:
+                semantic_processor.save_embeddings_data(embedding_output)
+                print(f"Embedding data saved to: {embedding_output}")
+            
+            # Save natural language descriptions if requested
+            if nl_descriptions_output:
+                semantic_processor.save_nl_descriptions(nl_descriptions_output)
+                print(f"Natural language descriptions saved to: {nl_descriptions_output}")
+        
+        return db
+    
     @staticmethod
     def extract_dict(db_path, sample_rows=3, max_column_values=10, 
                     execute_queries=True, query_result_limit=5):

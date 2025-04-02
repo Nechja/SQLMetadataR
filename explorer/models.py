@@ -120,6 +120,71 @@ class Database:
             ]
         }
     
+    def extract_schema_dict(self) -> Dict[str, Any]:
+        """Extract only schema information from this Database object."""
+        schema = {
+            "database_info": {
+                "name": self.name,
+                "path": self.path,
+                "extraction_time": self.extraction_time
+            },
+            "tables": {}
+        }
+        
+        for table_name, table in self.tables.items():
+            schema["tables"][table_name] = {
+                "name": table.name,
+                "columns": [
+                    {
+                        "name": col.name,
+                        "data_type": col.data_type,
+                        "not_null": col.not_null,
+                        "default_value": col.default_value,
+                        "is_primary_key": col.is_primary_key
+                    }
+                    for col in table.columns
+                ],
+                "primary_keys": table.primary_keys,
+                "foreign_keys": [
+                    {
+                        "from_column": fk.from_column,
+                        "to_table": fk.to_table,
+                        "to_column": fk.to_column
+                    }
+                    for fk in table.foreign_keys
+                ],
+                "indexes": [
+                    {
+                        "name": idx.name,
+                        "columns": idx.columns,
+                        "unique": idx.unique
+                    }
+                    for idx in table.indexes
+                ]
+            }
+        
+        # Include relationships between tables
+        schema["relationships"] = [
+            {
+                "from_table": rel.from_table,
+                "from_column": rel.from_column,
+                "to_table": rel.to_table,
+                "to_column": rel.to_column,
+                "relationship_type": rel.relationship_type
+            }
+            for rel in self.relationships
+        ]
+        
+        return schema
+
+    def save_schema_to_file(self, output_path: str) -> None:
+        """Save only the schema information to a JSON file."""
+        schema_dict = self.extract_schema_dict()
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(schema_dict, f, indent=2, default=str)
+        
+        print(f"Schema saved to: {output_path}")
+    
     def save_to_file(self, output_path: str) -> None:
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(self.to_dict(), f, indent=2, default=str)

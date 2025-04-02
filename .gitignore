@@ -1,4 +1,4 @@
-/Datasets
+/Datasets/database.db
 /dvd_metadata.json
 explorer/__pycache__/__init__.cpython-312.pyc
 explorer/__pycache__/analyzers.cpython-312.pyc
@@ -7,3 +7,4 @@ explorer/__pycache__/extractors.cpython-312.pyc
 explorer/__pycache__/models.cpython-312.pyc
 explorer/__pycache__/sql_explorer.cpython-312.pyc
 explorer/__pycache__/sql_metadata.cpython-312.pyc
+explorer/__pycache__/semantic_processor.cpython-312.pyc

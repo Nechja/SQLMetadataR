@@ -1,0 +1,1372 @@
+{
+  "database_info": {
+    "name": "dvd.db",
+    "path": "C:\\Users\\kayla\\source\\repos\\SQLMetadataR\\explorer\\..\\Datasets\\dvd.db",
+    "extraction_time": "2025-04-02T16:51:47.248348"
+  },
+  "tables": {
+    "actor": {
+      "name": "actor",
+      "columns": [
+        {
+          "name": "actor_id",
+          "data_type": "numeric",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "first_name",
+          "data_type": "VARCHAR(45)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_name",
+          "data_type": "VARCHAR(45)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "actor_id"
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "idx_actor_last_name",
+          "columns": [
+            "last_name"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_actor_1",
+          "columns": [
+            "actor_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "address": {
+      "name": "address",
+      "columns": [
+        {
+          "name": "address_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "address",
+          "data_type": "VARCHAR(50)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "address2",
+          "data_type": "VARCHAR(50)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "district",
+          "data_type": "VARCHAR(20)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "city_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "postal_code",
+          "data_type": "VARCHAR(10)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "phone",
+          "data_type": "VARCHAR(20)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "address_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "city_id",
+          "to_table": "city",
+          "to_column": "city_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_city_id",
+          "columns": [
+            "city_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_address_1",
+          "columns": [
+            "address_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "category": {
+      "name": "category",
+      "columns": [
+        {
+          "name": "category_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "name",
+          "data_type": "VARCHAR(25)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "category_id"
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_category_1",
+          "columns": [
+            "category_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "city": {
+      "name": "city",
+      "columns": [
+        {
+          "name": "city_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "city",
+          "data_type": "VARCHAR(50)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "country_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "city_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "country_id",
+          "to_table": "country",
+          "to_column": "country_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_country_id",
+          "columns": [
+            "country_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_city_1",
+          "columns": [
+            "city_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "country": {
+      "name": "country",
+      "columns": [
+        {
+          "name": "country_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "country",
+          "data_type": "VARCHAR(50)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": false,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "country_id"
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_country_1",
+          "columns": [
+            "country_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "customer": {
+      "name": "customer",
+      "columns": [
+        {
+          "name": "customer_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "store_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "first_name",
+          "data_type": "VARCHAR(45)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_name",
+          "data_type": "VARCHAR(45)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "email",
+          "data_type": "VARCHAR(50)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "address_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "active",
+          "data_type": "CHAR(1)",
+          "not_null": true,
+          "default_value": "'Y'",
+          "is_primary_key": false
+        },
+        {
+          "name": "create_date",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "customer_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "address_id",
+          "to_table": "address",
+          "to_column": "address_id"
+        },
+        {
+          "from_column": "store_id",
+          "to_table": "store",
+          "to_column": "store_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_customer_last_name",
+          "columns": [
+            "last_name"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_customer_fk_address_id",
+          "columns": [
+            "address_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_customer_fk_store_id",
+          "columns": [
+            "store_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_customer_1",
+          "columns": [
+            "customer_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "film": {
+      "name": "film",
+      "columns": [
+        {
+          "name": "film_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "title",
+          "data_type": "VARCHAR(255)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "description",
+          "data_type": "BLOB SUB_TYPE TEXT",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "release_year",
+          "data_type": "VARCHAR(4)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "language_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "original_language_id",
+          "data_type": "SMALLINT",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "rental_duration",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": "3",
+          "is_primary_key": false
+        },
+        {
+          "name": "rental_rate",
+          "data_type": "DECIMAL(4,2)",
+          "not_null": true,
+          "default_value": "4.99",
+          "is_primary_key": false
+        },
+        {
+          "name": "length",
+          "data_type": "SMALLINT",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "replacement_cost",
+          "data_type": "DECIMAL(5,2)",
+          "not_null": true,
+          "default_value": "19.99",
+          "is_primary_key": false
+        },
+        {
+          "name": "rating",
+          "data_type": "VARCHAR(10)",
+          "not_null": false,
+          "default_value": "'G'",
+          "is_primary_key": false
+        },
+        {
+          "name": "special_features",
+          "data_type": "VARCHAR(100)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "film_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "original_language_id",
+          "to_table": "language",
+          "to_column": "language_id"
+        },
+        {
+          "from_column": "language_id",
+          "to_table": "language",
+          "to_column": "language_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_original_language_id",
+          "columns": [
+            "original_language_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_fk_language_id",
+          "columns": [
+            "language_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_film_1",
+          "columns": [
+            "film_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "film_actor": {
+      "name": "film_actor",
+      "columns": [
+        {
+          "name": "actor_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "film_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "actor_id",
+        "film_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "film_id",
+          "to_table": "film",
+          "to_column": "film_id"
+        },
+        {
+          "from_column": "actor_id",
+          "to_table": "actor",
+          "to_column": "actor_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_film_actor_actor",
+          "columns": [
+            "actor_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_fk_film_actor_film",
+          "columns": [
+            "film_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_film_actor_1",
+          "columns": [
+            "actor_id",
+            "film_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "film_category": {
+      "name": "film_category",
+      "columns": [
+        {
+          "name": "film_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "category_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "film_id",
+        "category_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "category_id",
+          "to_table": "category",
+          "to_column": "category_id"
+        },
+        {
+          "from_column": "film_id",
+          "to_table": "film",
+          "to_column": "film_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_film_category_category",
+          "columns": [
+            "category_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_fk_film_category_film",
+          "columns": [
+            "film_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_film_category_1",
+          "columns": [
+            "film_id",
+            "category_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "film_text": {
+      "name": "film_text",
+      "columns": [
+        {
+          "name": "film_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "title",
+          "data_type": "VARCHAR(255)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "description",
+          "data_type": "BLOB SUB_TYPE TEXT",
+          "not_null": false,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "film_id"
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_film_text_1",
+          "columns": [
+            "film_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "inventory": {
+      "name": "inventory",
+      "columns": [
+        {
+          "name": "inventory_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "film_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "store_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "inventory_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "film_id",
+          "to_table": "film",
+          "to_column": "film_id"
+        },
+        {
+          "from_column": "store_id",
+          "to_table": "store",
+          "to_column": "store_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_film_id_store_id",
+          "columns": [
+            "store_id",
+            "film_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_fk_film_id",
+          "columns": [
+            "film_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_inventory_1",
+          "columns": [
+            "inventory_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "language": {
+      "name": "language",
+      "columns": [
+        {
+          "name": "language_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "name",
+          "data_type": "CHAR(20)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "language_id"
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "sqlite_autoindex_language_1",
+          "columns": [
+            "language_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "payment": {
+      "name": "payment",
+      "columns": [
+        {
+          "name": "payment_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "customer_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "staff_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "rental_id",
+          "data_type": "INT",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "amount",
+          "data_type": "DECIMAL(5,2)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "payment_date",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "payment_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "staff_id",
+          "to_table": "staff",
+          "to_column": "staff_id"
+        },
+        {
+          "from_column": "customer_id",
+          "to_table": "customer",
+          "to_column": "customer_id"
+        },
+        {
+          "from_column": "rental_id",
+          "to_table": "rental",
+          "to_column": "rental_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_customer_id",
+          "columns": [
+            "customer_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_fk_staff_id",
+          "columns": [
+            "staff_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_payment_1",
+          "columns": [
+            "payment_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "rental": {
+      "name": "rental",
+      "columns": [
+        {
+          "name": "rental_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "rental_date",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "inventory_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "customer_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "return_date",
+          "data_type": "TIMESTAMP",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "staff_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "rental_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "customer_id",
+          "to_table": "customer",
+          "to_column": "customer_id"
+        },
+        {
+          "from_column": "inventory_id",
+          "to_table": "inventory",
+          "to_column": "inventory_id"
+        },
+        {
+          "from_column": "staff_id",
+          "to_table": "staff",
+          "to_column": "staff_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_rental_uq",
+          "columns": [
+            "rental_date",
+            "inventory_id",
+            "customer_id"
+          ],
+          "unique": true
+        },
+        {
+          "name": "idx_rental_fk_staff_id",
+          "columns": [
+            "staff_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_rental_fk_customer_id",
+          "columns": [
+            "customer_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_rental_fk_inventory_id",
+          "columns": [
+            "inventory_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_rental_1",
+          "columns": [
+            "rental_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "staff": {
+      "name": "staff",
+      "columns": [
+        {
+          "name": "staff_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "first_name",
+          "data_type": "VARCHAR(45)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_name",
+          "data_type": "VARCHAR(45)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "address_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "picture",
+          "data_type": "BLOB",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "email",
+          "data_type": "VARCHAR(50)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "store_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "active",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": "1",
+          "is_primary_key": false
+        },
+        {
+          "name": "username",
+          "data_type": "VARCHAR(16)",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "password",
+          "data_type": "VARCHAR(40)",
+          "not_null": false,
+          "default_value": "NULL",
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "staff_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "address_id",
+          "to_table": "address",
+          "to_column": "address_id"
+        },
+        {
+          "from_column": "store_id",
+          "to_table": "store",
+          "to_column": "store_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_staff_address_id",
+          "columns": [
+            "address_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_fk_staff_store_id",
+          "columns": [
+            "store_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_staff_1",
+          "columns": [
+            "staff_id"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "store": {
+      "name": "store",
+      "columns": [
+        {
+          "name": "store_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": true
+        },
+        {
+          "name": "manager_staff_id",
+          "data_type": "SMALLINT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "address_id",
+          "data_type": "INT",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        },
+        {
+          "name": "last_update",
+          "data_type": "TIMESTAMP",
+          "not_null": true,
+          "default_value": null,
+          "is_primary_key": false
+        }
+      ],
+      "primary_keys": [
+        "store_id"
+      ],
+      "foreign_keys": [
+        {
+          "from_column": "address_id",
+          "to_table": "address",
+          "to_column": "address_id"
+        },
+        {
+          "from_column": "manager_staff_id",
+          "to_table": "staff",
+          "to_column": "staff_id"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_fk_store_address",
+          "columns": [
+            "address_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_store_fk_manager_staff_id",
+          "columns": [
+            "manager_staff_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "sqlite_autoindex_store_1",
+          "columns": [
+            "store_id"
+          ],
+          "unique": true
+        }
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "from_table": "address",
+      "from_column": "city_id",
+      "to_table": "city",
+      "to_column": "city_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "city",
+      "from_column": "country_id",
+      "to_table": "country",
+      "to_column": "country_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "customer",
+      "from_column": "address_id",
+      "to_table": "address",
+      "to_column": "address_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "customer",
+      "from_column": "store_id",
+      "to_table": "store",
+      "to_column": "store_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "film",
+      "from_column": "original_language_id",
+      "to_table": "language",
+      "to_column": "language_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "film",
+      "from_column": "language_id",
+      "to_table": "language",
+      "to_column": "language_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "film_actor",
+      "from_column": "film_id",
+      "to_table": "film",
+      "to_column": "film_id",
+      "relationship_type": "one_to_one"
+    },
+    {
+      "from_table": "film_actor",
+      "from_column": "actor_id",
+      "to_table": "actor",
+      "to_column": "actor_id",
+      "relationship_type": "one_to_one"
+    },
+    {
+      "from_table": "film_category",
+      "from_column": "category_id",
+      "to_table": "category",
+      "to_column": "category_id",
+      "relationship_type": "one_to_one"
+    },
+    {
+      "from_table": "film_category",
+      "from_column": "film_id",
+      "to_table": "film",
+      "to_column": "film_id",
+      "relationship_type": "one_to_one"
+    },
+    {
+      "from_table": "inventory",
+      "from_column": "film_id",
+      "to_table": "film",
+      "to_column": "film_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "inventory",
+      "from_column": "store_id",
+      "to_table": "store",
+      "to_column": "store_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "payment",
+      "from_column": "staff_id",
+      "to_table": "staff",
+      "to_column": "staff_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "payment",
+      "from_column": "customer_id",
+      "to_table": "customer",
+      "to_column": "customer_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "payment",
+      "from_column": "rental_id",
+      "to_table": "rental",
+      "to_column": "rental_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "rental",
+      "from_column": "customer_id",
+      "to_table": "customer",
+      "to_column": "customer_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "rental",
+      "from_column": "inventory_id",
+      "to_table": "inventory",
+      "to_column": "inventory_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "rental",
+      "from_column": "staff_id",
+      "to_table": "staff",
+      "to_column": "staff_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "staff",
+      "from_column": "address_id",
+      "to_table": "address",
+      "to_column": "address_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "staff",
+      "from_column": "store_id",
+      "to_table": "store",
+      "to_column": "store_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "store",
+      "from_column": "address_id",
+      "to_table": "address",
+      "to_column": "address_id",
+      "relationship_type": "many_to_one"
+    },
+    {
+      "from_table": "store",
+      "from_column": "manager_staff_id",
+      "to_table": "staff",
+      "to_column": "staff_id",
+      "relationship_type": "many_to_one"
+    }
+  ]
+}

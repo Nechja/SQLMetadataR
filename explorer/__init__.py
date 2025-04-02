@@ -11,11 +11,17 @@ from .models import (
 # Import explorer
 from .sql_explorer import SQLExplorer
 
+# Import semantic processor
+from .semantic_processor import SemanticMetadataProcessor
+
 __all__ = [
     # Domain models
     'Database', 'Table', 'Column', 'Index', 'ForeignKey', 
     'Relationship', 'QueryExample', 'QueryResult',
     
     # Core functionality
-    'SQLExplorer'
+    'SQLExplorer',
+    
+    # Semantic processing
+    'SemanticMetadataProcessor'
 ]
