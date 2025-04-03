@@ -12,7 +12,8 @@ import sys
 import logging
 import time
 import random
-from typing import Optional, Dict, Any
+import re
+from typing import Optional, Dict, List, Any, Tuple
 from pathlib import Path
 
 import anthropic
@@ -24,6 +25,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Maximum token limit for Anthropic API (conservative estimate)
+MAX_TOKENS = 180000  # Setting lower than actual limit to leave room for the response
 
 def load_api_key(keys_file: str = "keys.info") -> Optional[str]:
     """Load API key from keys.info file."""
@@ -41,13 +45,189 @@ def load_api_key(keys_file: str = "keys.info") -> Optional[str]:
         
     return None
 
-def anthropic_query_generator(metadata: Dict[str, Any], natural_language: str) -> str:
+def load_additional_context(base_name: str) -> Dict[str, Any]:
+    """
+    Load additional context files based on the base name of the database.
+    
+    Args:
+        base_name: Base name of the database (e.g., 'dvd' for 'dvd.db')
+        
+    Returns:
+        Dictionary containing additional context data
+    """
+    context = {}
+    
+    # List of potential context files
+    context_files = [
+        f"{base_name}_metadata.json",
+        f"{base_name}_schema.json",
+        f"{base_name}_table_dict.json",
+        f"{base_name}_embedding_data.json"
+    ]
+    
+    for file_path in context_files:
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                    # Use filename without extension as the key
+                    key = os.path.splitext(os.path.basename(file_path))[0]
+                    context[key] = data
+                    logger.info(f"Loaded additional context from {file_path}")
+            except Exception as e:
+                logger.warning(f"Could not load context from {file_path}: {e}")
+    
+    return context
+
+def estimate_token_count(text: str) -> int:
+    """
+    Estimate the number of tokens in a string.
+    This is a simple approximation - tokens are roughly 4 characters on average.
+    
+    Args:
+        text: The text string to estimate token count for
+        
+    Returns:
+        Estimated token count
+    """
+    # Simple approximation: 1 token ≈ 4 characters
+    return len(text) // 4 + 1
+
+def truncate_context_to_fit_tokens(metadata: Dict[str, Any], additional_context: Dict[str, Any], natural_language: str) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """
+    Truncate context data to fit within token limits.
+    
+    Args:
+        metadata: Database metadata
+        additional_context: Additional context data
+        natural_language: The natural language query
+        
+    Returns:
+        Tuple of (truncated metadata, truncated additional context)
+    """
+    # Start with essential content
+    base_prompt = f"""
+    You are an expert SQL query generator. Given the database metadata and a natural language question,
+    generate the most appropriate SQL query to answer the question.
+    
+    NATURAL LANGUAGE QUESTION:
+    {natural_language}
+    
+    SQL QUERY:
+    """
+    
+    token_budget = MAX_TOKENS - estimate_token_count(base_prompt) - 2000  # Reserve 2000 tokens for overhead and response
+    
+    # Create deep copies to avoid modifying the originals
+    truncated_metadata = metadata.copy()
+    truncated_additional_context = {}
+    if additional_context:
+        truncated_additional_context = {k: v.copy() if isinstance(v, dict) else v for k, v in additional_context.items()}
+    
+    # Start with most important context - table info from metadata
+    metadata_str = json.dumps(truncated_metadata, indent=2)
+    metadata_tokens = estimate_token_count(metadata_str)
+    
+    # If metadata alone is too large, we need to truncate it
+    if metadata_tokens > token_budget * 0.7:  # Allocate 70% of budget to metadata
+        logger.warning(f"Metadata is too large ({metadata_tokens} tokens). Truncating...")
+        
+        # Keep database info and table structure, but limit details
+        if "tables" in truncated_metadata:
+            for table_name, table_data in list(truncated_metadata["tables"].items()):
+                # Remove less important sections
+                for field in ["technical_details", "business_rules", "metrics", "domain_terms"]:
+                    if field in table_data:
+                        del table_data[field]
+        
+        # Reduce column information to essential fields
+        if "columns" in truncated_metadata:
+            columns_to_keep = {}
+            for col_key, col_data in truncated_metadata["columns"].items():
+                if "." in col_key:  # Table.column format
+                    table_name, col_name = col_key.split(".")
+                    # Keep only primary keys and a few important columns
+                    if col_data.get("is_primary_key", False):
+                        columns_to_keep[col_key] = col_data
+                    elif any(important in col_name for important in ["id", "name", "key", "date"]):
+                        columns_to_keep[col_key] = col_data
+            truncated_metadata["columns"] = columns_to_keep
+            
+        # Limit number of relationships
+        if "relationships" in truncated_metadata and len(truncated_metadata["relationships"]) > 20:
+            truncated_metadata["relationships"] = truncated_metadata["relationships"][:20]
+            
+        metadata_str = json.dumps(truncated_metadata, indent=2)
+        metadata_tokens = estimate_token_count(metadata_str)
+    
+    remaining_budget = token_budget - metadata_tokens
+    
+    # Check if we have any budget left for additional context
+    if remaining_budget <= 0:
+        logger.warning("No token budget left for additional context")
+        return truncated_metadata, {}
+    
+    # Prioritize context by importance
+    priority_order = ["dvd_table_dict", "dvd_schema", "dvd_embedding_data"]
+    
+    for context_key in priority_order:
+        if context_key in truncated_additional_context:
+            context_str = json.dumps(truncated_additional_context[context_key], indent=2)
+            context_tokens = estimate_token_count(context_str)
+            
+            if context_tokens <= remaining_budget:
+                remaining_budget -= context_tokens
+            else:
+                # Need to truncate or remove this context
+                if context_key == "dvd_table_dict":
+                    # Table dict is high priority - try to keep core info
+                    table_dict = truncated_additional_context[context_key]
+                    
+                    # Keep database_info and a few important tables
+                    important_tables = ["film", "customer", "rental", "payment"]
+                    truncated_tables = {k: v for k, v in table_dict.items() 
+                                      if k == "database_info" or k in important_tables}
+                    
+                    # For each table, keep only essential columns
+                    for table_name, table_data in truncated_tables.items():
+                        if isinstance(table_data, dict) and "columns" in table_data:
+                            # Keep only a subset of columns
+                            col_subset = {}
+                            for col_name, col_desc in list(table_data["columns"].items())[:5]:
+                                col_subset[col_name] = col_desc
+                            table_data["columns"] = col_subset
+                            
+                            # Remove less critical info
+                            for field in ["business_rules", "metrics", "domain_terms"]:
+                                if field in table_data:
+                                    del table_data[field]
+                    
+                    truncated_additional_context[context_key] = truncated_tables
+                    
+                    # Recalculate tokens
+                    context_str = json.dumps(truncated_additional_context[context_key], indent=2)
+                    context_tokens = estimate_token_count(context_str)
+                    
+                    if context_tokens <= remaining_budget:
+                        remaining_budget -= context_tokens
+                    else:
+                        # Still too large, remove entirely
+                        del truncated_additional_context[context_key]
+                else:
+                    # Lower priority, just remove
+                    del truncated_additional_context[context_key]
+    
+    logger.info(f"Adjusted context to fit within token limit. Estimated tokens: {MAX_TOKENS - remaining_budget}")
+    return truncated_metadata, truncated_additional_context
+
+def anthropic_query_generator(metadata: Dict[str, Any], natural_language: str, additional_context: Dict[str, Any] = None) -> str:
     """
     Generate SQL query using Anthropic API with rate limiting and exponential backoff.
     
     Args:
         metadata: Database metadata
         natural_language: Natural language question
+        additional_context: Additional context data
         
     Returns:
         Generated SQL query
@@ -60,6 +240,10 @@ def anthropic_query_generator(metadata: Dict[str, Any], natural_language: str) -
     # Create the Anthropic client with the API key
     client = anthropic.Anthropic(api_key=api_key)
     
+    # Truncate context if needed to stay within token limits
+    truncated_metadata, truncated_additional_context = truncate_context_to_fit_tokens(
+        metadata, additional_context or {}, natural_language)
+    
     # Prepare the prompt with database structure and question
     prompt = f"""
     You are an expert SQL query generator. Given the database metadata and a natural language question,
@@ -67,14 +251,46 @@ def anthropic_query_generator(metadata: Dict[str, Any], natural_language: str) -
     
     DATABASE METADATA:
     ```json
-    {json.dumps(metadata, indent=2)}
+    {json.dumps(truncated_metadata, indent=2)}
     ```
+    """
     
+    # Add additional context if available
+    if truncated_additional_context:
+        if "dvd_table_dict" in truncated_additional_context:
+            prompt += f"""
+    TABLE DICTIONARY WITH BUSINESS CONTEXT:
+    ```json
+    {json.dumps(truncated_additional_context["dvd_table_dict"], indent=2)}
+    ```
+    """
+        
+        if "dvd_schema" in truncated_additional_context:
+            prompt += f"""
+    DATABASE SCHEMA:
+    ```json
+    {json.dumps(truncated_additional_context["dvd_schema"], indent=2)}
+    ```
+    """
+            
+        if "dvd_embedding_data" in truncated_additional_context:
+            prompt += f"""
+    EMBEDDING DATA:
+    ```json
+    {json.dumps(truncated_additional_context["dvd_embedding_data"], indent=2)}
+    ```
+    """
+    
+    prompt += f"""
     NATURAL LANGUAGE QUESTION:
     {natural_language}
     
     SQL QUERY:
     """
+    
+    # Log estimated token count
+    estimated_tokens = estimate_token_count(prompt)
+    logger.info(f"Estimated token count for prompt: {estimated_tokens}")
     
     # Exponential backoff settings
     max_retries = 5
@@ -111,6 +327,46 @@ def anthropic_query_generator(metadata: Dict[str, Any], natural_language: str) -
         except Exception as e:
             error_msg = str(e)
             
+            # Check for token limit errors
+            if "prompt is too long" in error_msg or "invalid_request_error" in error_msg:
+                if "prompt is too long" in error_msg:
+                    # Extract the actual token count from the error message if available
+                    token_match = re.search(r'(\d+) tokens > (\d+) maximum', error_msg)
+                    if token_match:
+                        actual_tokens = int(token_match.group(1))
+                        max_allowed = int(token_match.group(2))
+                        logger.warning(f"Prompt too long: {actual_tokens} tokens (max allowed: {max_allowed})")
+                    
+                # Reduce context size more aggressively for next attempt
+                global MAX_TOKENS
+                MAX_TOKENS = int(MAX_TOKENS * 0.7)  # Reduce by 30%
+                logger.warning(f"Reducing token budget to {MAX_TOKENS} for retry")
+                
+                if attempt < max_retries - 1:
+                    # Try again with reduced context
+                    truncated_metadata, truncated_additional_context = truncate_context_to_fit_tokens(
+                        metadata, additional_context or {}, natural_language)
+                    
+                    # Rebuild prompt with reduced context
+                    prompt = f"""
+                    You are an expert SQL query generator. Given the database metadata and a natural language question,
+                    generate the most appropriate SQL query to answer the question. Only return the SQL query without any explanation or markdown formatting.
+                    
+                    DATABASE METADATA:
+                    ```json
+                    {json.dumps(truncated_metadata, indent=2)}
+                    ```
+                    
+                    NATURAL LANGUAGE QUESTION:
+                    {natural_language}
+                    
+                    SQL QUERY:
+                    """
+                    
+                    # No delay needed for token errors, just retry immediately with smaller context
+                    logger.info(f"Retrying with reduced context (Attempt {attempt+1}/{max_retries})")
+                    continue
+            
             # Check if it's a rate limit error
             if "rate_limit_error" in error_msg or "Error code: 429" in error_msg:
                 if attempt < max_retries - 1:  # Don't wait after the last attempt
@@ -128,7 +384,7 @@ def anthropic_query_generator(metadata: Dict[str, Any], natural_language: str) -
             raise
 
 # Modified benchmark function to include rate limiting between batches
-def run_benchmark_with_rate_limiting(benchmarker, generator_func, batch_size=5, batch_delay=3):
+def run_benchmark_with_rate_limiting(benchmarker, generator_func, additional_context=None, batch_size=3, batch_delay=5):
     """Run benchmark with rate limiting between batches of queries."""
     query_patterns = benchmarker.query_patterns
     if not query_patterns:
@@ -193,7 +449,7 @@ def run_benchmark_with_rate_limiting(benchmarker, generator_func, batch_size=5, 
                     benchmarker.results.total_queries += 1
                     
                     try:
-                        actual_query = generator_func(benchmarker.db_metadata, nl_variation)
+                        actual_query = generator_func(benchmarker.db_metadata, nl_variation, additional_context)
                     except Exception as e:
                         logger.error(f"Error generating query for '{nl_variation}': {e}")
                         actual_query = f"ERROR: {e}"
@@ -231,6 +487,7 @@ def run_benchmark_with_rate_limiting(benchmarker, generator_func, batch_size=5, 
     
     return benchmarker.results
 
+# Rest of the code remains the same
 def run_cli():
     """Run the command-line interface."""
     parser = argparse.ArgumentParser(description="SQLMetadataR Benchmark Tool")
@@ -244,8 +501,8 @@ def run_cli():
     benchmark_parser.add_argument("--patterns", help="Path to query patterns JSON file")
     benchmark_parser.add_argument("--output", default="benchmark_results.json", help="Output file for benchmark results")
     benchmark_parser.add_argument("--mock", action="store_true", help="Use mock AI instead of actual API")
-    benchmark_parser.add_argument("--batch-size", type=int, default=5, help="Number of queries to process in each batch")
-    benchmark_parser.add_argument("--batch-delay", type=int, default=3, help="Delay in seconds between batches")
+    benchmark_parser.add_argument("--batch-size", type=int, default=3, help="Number of queries to process in each batch")
+    benchmark_parser.add_argument("--batch-delay", type=int, default=5, help="Delay in seconds between batches")
     
     # Evaluate single query command
     evaluate_parser = subparsers.add_parser("evaluate", help="Evaluate a single query")
@@ -273,13 +530,17 @@ def run_cli():
             query_patterns_path=args.patterns
         )
         
+        # Get the base name of the database to load additional context
+        db_base_name = Path(args.db).stem
+        additional_context = load_additional_context(db_base_name)
+        
         # Select AI query generator
         if args.mock:
             logger.info("Using mock AI query generator")
             generator_func = mock_ai_query_generator
             
             # Run regular benchmark for mock generator
-            results = benchmarker.run_benchmark(ai_generator_func=generator_func)
+            results = benchmarker.run_benchmark(ai_generator_func=lambda metadata, nl: generator_func(metadata, nl))
         else:
             logger.info("Using Anthropic API for query generation with rate limiting")
             
@@ -287,6 +548,7 @@ def run_cli():
             results = run_benchmark_with_rate_limiting(
                 benchmarker, 
                 anthropic_query_generator,
+                additional_context=additional_context,
                 batch_size=args.batch_size,
                 batch_delay=args.batch_delay
             )
@@ -305,11 +567,15 @@ def run_cli():
             semantic_json_path=args.semantic
         )
         
+        # Get the base name of the database to load additional context
+        db_base_name = Path(args.db).stem
+        additional_context = load_additional_context(db_base_name)
+        
         # Generate query with AI
         if args.mock:
             actual_query = mock_ai_query_generator(benchmarker.db_metadata, args.nl)
         else:
-            actual_query = anthropic_query_generator(benchmarker.db_metadata, args.nl)
+            actual_query = anthropic_query_generator(benchmarker.db_metadata, args.nl, additional_context)
             
         # Evaluate the query
         comparison = benchmarker.evaluate_query(
