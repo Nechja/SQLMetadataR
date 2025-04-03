@@ -39,7 +39,7 @@ def main():
         # Set default database path if none provided
         if args.database is None:
             script_dir = os.path.dirname(os.path.abspath(__file__))
-            args.database = os.path.join(script_dir, "..", "Datasets", "dvd.db")
+            args.database = os.path.join(script_dir, "..", "Datasets", "project.db")
         
         # Set default output file paths if none provided
         base_name = os.path.splitext(os.path.basename(args.database))[0]

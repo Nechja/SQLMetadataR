@@ -2,7 +2,7 @@
   "database_info": {
     "name": "dvd.db",
     "path": "C:\\Users\\kayla\\source\\repos\\SQLMetadataR\\explorer\\..\\Datasets\\dvd.db",
-    "extraction_time": "2025-04-02T16:51:47.248348"
+    "extraction_time": "2025-04-02T17:05:27.643831"
   },
   "tables": {
     "actor": {

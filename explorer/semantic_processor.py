@@ -89,9 +89,9 @@ class SemanticMetadataProcessor:
                 "columns": {}
             }
             
-            # Merge with business context if available
-            if table_name in self.business_context:
-                business_table = self.business_context.get(table_name, {})
+            # Merge with business context if available - now case-insensitive
+            business_table = self._find_business_table(table_name)
+            if business_table:
                 table_context["description"] = business_table.get("description", f"Table containing {table_name} data")
                 table_context["domain"] = business_table.get("domain", "")
                 table_context["business_owner"] = business_table.get("business_owner", "")
@@ -110,9 +110,9 @@ class SemanticMetadataProcessor:
     
     def _process_columns(self, table: Table, table_context: Dict, table_name: str) -> None:
         """Process column metadata and merge with business context"""
-        business_columns = {}
-        if table_name in self.business_context:
-            business_columns = self.business_context.get(table_name, {}).get("columns", {})
+        # Get business table using case-insensitive lookup
+        business_table = self._find_business_table(table_name)
+        business_columns = business_table.get("columns", {}) if business_table else {}
         
         for column in table.columns:
             # Initialize column context
@@ -136,19 +136,23 @@ class SemanticMetadataProcessor:
                 "is_primary_key": column.is_primary_key
             })
             
+            # Case-insensitive column lookup
+            column_info = self._find_business_column(business_columns, column.name)
+            
             # Merge with business context if available
-            if column.name in business_columns:
-                column_context["description"] = business_columns.get(column.name, "")
-                column_context["business_meaning"] = business_columns.get(column.name, "")
+            if column_info:
+                column_context["description"] = column_info
+                column_context["business_meaning"] = column_info
             else:
                 # Generate default description
                 column_context["description"] = f"{column.name} ({column.data_type})"
             
-            # Add domain terms for the column
-            if table_name in self.business_context:
-                domain_terms = self.business_context.get(table_name, {}).get("domain_terms", {})
-                if column.name in domain_terms:
-                    column_context["domain_terms"] = domain_terms[column.name]
+            # Add domain terms for the column - case insensitive
+            if business_table:
+                domain_terms = business_table.get("domain_terms", {})
+                column_domain_terms = self._find_business_column(domain_terms, column.name)
+                if column_domain_terms:
+                    column_context["domain_terms"] = column_domain_terms
             
             # Add to table context
             table_context["columns"][column.name] = column_context
@@ -169,11 +173,14 @@ class SemanticMetadataProcessor:
                 "business_meaning": ""
             }
             
-            # Add business meaning from business context if available
+            # Add business meaning from business context if available - case insensitive
             relationships = self.business_context.get("relationships", [])
             for business_rel in relationships:
-                if (business_rel.get("parent_table") == rel.to_table and 
-                    business_rel.get("child_table") == rel.from_table):
+                parent_table = business_rel.get("parent_table", "")
+                child_table = business_rel.get("child_table", "")
+                
+                if (parent_table.lower() == rel.to_table.lower() and 
+                    child_table.lower() == rel.from_table.lower()):
                     rel_context["business_meaning"] = business_rel.get("business_meaning", "")
                     break
             
@@ -746,3 +753,27 @@ class SemanticMetadataProcessor:
             json.dump(descriptions, f, indent=2, default=str)
         
         print(f"Natural language descriptions saved to: {output_path}")
+    
+    def _find_business_table(self, table_name: str) -> Dict:
+        """Find a table in business context, case-insensitive"""
+        if table_name in self.business_context:
+            return self.business_context.get(table_name, {})
+        
+        # Try case-insensitive lookup
+        for key in self.business_context:
+            if key.lower() == table_name.lower():
+                return self.business_context.get(key, {})
+                
+        return {}
+    
+    def _find_business_column(self, columns_dict: Dict, column_name: str) -> Any:
+        """Find a column in columns dictionary, case-insensitive"""
+        if column_name in columns_dict:
+            return columns_dict.get(column_name)
+        
+        # Try case-insensitive lookup
+        for key in columns_dict:
+            if key.lower() == column_name.lower():
+                return columns_dict.get(key)
+                
+        return None
