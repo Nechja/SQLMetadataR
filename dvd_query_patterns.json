@@ -9,6 +9,7 @@
           "Actors whose first name is Scarlett"
         ],
         "sql": "SELECT * FROM actor WHERE first_name = 'Scarlett';",
+        "complexity": "simple",
         "description": "Find actors by their first name",
         "tables": ["actor"],
         "params": {
@@ -24,6 +25,7 @@
           "Actors with last name Johansson"
         ],
         "sql": "SELECT * FROM actor WHERE last_name LIKE 'Johansson';",
+        "complexity": "simple",
         "description": "Find actors by their last name",
         "tables": ["actor"],
         "params": {
@@ -40,6 +42,7 @@
         ],
         "sql": "SELECT COUNT(DISTINCT last_name) FROM actor;",
         "description": "Count the number of unique last names among actors",
+        "complexity": "simple",
         "tables": ["actor"],
         "params": {}
       },
@@ -52,6 +55,7 @@
           "Actor last names with only one occurrence"
         ],
         "sql": "SELECT last_name FROM actor GROUP BY last_name HAVING COUNT(*) = 1;",
+        "complexity": "simple",
         "description": "Find last names that appear only once in the actor table",
         "tables": ["actor"],
         "params": {}
@@ -65,6 +69,7 @@
           "Last names with multiple occurrences"
         ],
         "sql": "SELECT last_name FROM actor GROUP BY last_name HAVING COUNT(*) > 1;",
+        "complexity": "simple",
         "description": "Find last names that appear multiple times in the actor table",
         "tables": ["actor"],
         "params": {}
@@ -78,6 +83,7 @@
           "Actor with the most film appearances"
         ],
         "sql": "SELECT actor.actor_id, actor.first_name, actor.last_name, COUNT(actor_id) AS film_count FROM actor JOIN film_actor USING (actor_id) GROUP BY actor_id ORDER BY film_count DESC LIMIT 1;",
+        "complexity": "simple",
         "description": "Find the actor who has appeared in the most films",
         "tables": ["actor", "film_actor"],
         "params": {}
@@ -91,8 +97,10 @@
           "Availability of Academy Dinosaur at store 1"
         ],
         "sql": "SELECT inventory.inventory_id FROM inventory JOIN store USING (store_id) JOIN film USING (film_id) WHERE film.title = 'Academy Dinosaur' AND store.store_id = 1 AND NOT EXISTS (SELECT * FROM rental WHERE rental.inventory_id = inventory.inventory_id AND rental.return_date IS NULL);",
+        "complexity": "medium",
         "description": "Check if a specific film is available for rent at a specific store",
         "tables": ["inventory", "store", "film", "rental"],
+
         "params": {
           "title": "Academy Dinosaur",
           "store_id": 1
@@ -124,6 +132,7 @@
           "Due date for the Academy Dinosaur rental"
         ],
         "sql": "SELECT rental_date, rental_date + INTERVAL (SELECT rental_duration FROM film WHERE film_id = 1) DAY AS due_date FROM rental WHERE rental_id = (SELECT rental_id FROM rental ORDER BY rental_id DESC LIMIT 1);",
+        "complexity": "medium",
         "description": "Calculate when a rented film is due to be returned",
         "tables": ["rental", "film"],
         "params": {
@@ -152,6 +161,7 @@
           "Average film length per category"
         ],
         "sql": "SELECT category.name, AVG(length) FROM film JOIN film_category USING (film_id) JOIN category USING (category_id) GROUP BY category.name ORDER BY AVG(length) DESC;",
+        "complexity": "simple",
         "description": "Calculate the average length of films for each category",
         "tables": ["film", "film_category", "category"],
         "params": {}
@@ -165,6 +175,7 @@
           "Which genres have films longer than the overall average?"
         ],
         "sql": "SELECT category.name, AVG(length) FROM film JOIN film_category USING (film_id) JOIN category USING (category_id) GROUP BY category.name HAVING AVG(length) > (SELECT AVG(length) FROM film) ORDER BY AVG(length) DESC;",
+        "complexity": "medium",
         "description": "Find categories where the average film length is greater than the overall average",
         "tables": ["film", "film_category", "category"],
         "params": {}
@@ -178,6 +189,7 @@
           "No results from film NATURAL JOIN inventory - why?"
         ],
         "sql": "SELECT * FROM film NATURAL JOIN inventory;",
+        "complexity": "simple",
         "description": "Demonstrate why a natural join between film and inventory returns no results",
         "tables": ["film", "inventory"],
         "params": {},
