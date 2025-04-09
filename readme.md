@@ -12,18 +12,17 @@ SQLMetadataR is a tool for extracting and analyzing metadata from SQLite databas
 
 ## Installation
 
-1. Ensure you have Python 3.12 or later installed.
-2. Clone the repository:
-    ```sh
-    git clone <repository_url>
-    cd SQLMetadataR
-    ```
+You can install SQLMetadataR directly from PyPI:
+
+```sh
+pip install SQLMetadataR
+```
 
 ## Usage
 
 ### As a Python Module
 
-You can use the [SQLExplorer](http://_vscodecontentref_/0) class from the [explorer](http://_vscodecontentref_/1) module to extract metadata:
+You can use the [`SQLExplorer`](explorer/sql_explorer.py) class from the [`explorer`](explorer) module to extract metadata:
 
 ```python
 from explorer.sql_explorer import SQLExplorer
@@ -41,3 +40,63 @@ db_metadata = explorer.extract_metadata(
 
 # Save the metadata to a JSON file
 db_metadata.save_to_file("database_metadata.json")
+```
+
+### Command-Line Interface
+
+Run the complete workflow directly from the command line:
+
+```bash
+python -m explorer.cli path/to/your/database.db --output metadata.json
+```
+
+Command-line options include:
+- `--output`, `-o`: Specify the output JSON file path
+- `--sample-rows`, `-r`: Number of sample rows to include per table
+- `--max-values`, `-v`: Maximum number of distinct values to sample per column
+- `--no-execute`: Skip executing example queries
+- `--query-results`, `-q`: Number of result rows per executed query
+
+## Folder Structure
+
+```
+SQLMetadataR/
+├── .gitignore
+├── dvd_benchmarked_data.json
+├── dvd_embedding_data.json
+├── dvd_metadata.json
+├── dvd_metadata_validation.json
+├── dvd_query_patterns.json
+├── dvd_schema.json
+├── dvd_semantic.json
+├── dvd_table_dict.json
+├── readme.md
+├── Datasets/
+│   ├── dvd.db
+└── explorer/
+    ├── __init__.py
+    ├── analyzers.py
+    ├── cli.py
+    ├── extractors.py
+    ├── models.py
+    ├── semantic_processor.py
+    ├── sql_explorer.md
+    ├── sql_explorer.py
+    └── __pycache__/
+```
+
+## Documentation
+
+For detailed information on domain models, extraction methods, and components, refer to the sql_explorer.md file. In-code documentation and comments also provide guidance on how each module works.
+
+## Contributing
+
+Contributions are welcome! Please open issues or submit pull requests for bug fixes and new features.
+
+## License
+
+This project is licensed under the Attribution-ShareAlike 4.0 International License.
+
+## Acknowledgements
+
+SQLMetadataR was developed to simplify the process of understanding SQLite database structures and metadata. Thank you for using the project!

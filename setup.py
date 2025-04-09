@@ -11,9 +11,9 @@ setup(
     install_requires=[
         # Add your dependencies here, e.g., 'numpy', 'pandas'
     ],
+    license='Attribution-ShareAlike 4.0 International License',
     classifiers=[
         'Programming Language :: Python :: 3',
-        'License :: OSI Approved :: Attribution-ShareAlike 4.0 International License',
         'Operating System :: OS Independent',
     ],
     python_requires='>=3.12',
