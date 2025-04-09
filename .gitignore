@@ -19,3 +19,8 @@ benchmark/what_is_benchmark.md
 benchmark/__pycache__/benchmark.cpython-312.pyc
 benchmark/__pycache__/cli.cpython-312.pyc
 benchmark/__pycache__/models.cpython-312.pyc
+dist/sqlmetadatar-0.1.0.tar.gz
+SQLMetadataR.egg-info/dependency_links.txt
+SQLMetadataR.egg-info/PKG-INFO
+SQLMetadataR.egg-info/SOURCES.txt
+SQLMetadataR.egg-info/top_level.txt
