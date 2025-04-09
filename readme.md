@@ -18,11 +18,6 @@ SQLMetadataR is a tool for extracting and analyzing metadata from SQLite databas
     git clone <repository_url>
     cd SQLMetadataR
     ```
-3. Install required dependencies:
-    ```sh
-    pip install -r requirements.txt
-    ```
-   *(If a `requirements.txt` file is not provided, install all dependencies as documented.)*
 
 ## Usage
 

@@ -9,20 +9,23 @@
 name: Upload Python Package
 
 on:
+  workflow_dispatch:
+    inputs:
+      trigger_reason:
+        description: 'Reason for manually triggering the workflow'
+        required: false
   push:
     paths:
       - 'explorer/**'
   release:
     types: [published]
-  workflow_dispatch:
-  
 
 permissions:
   contents: read
 
 jobs:
   release-build:
-    if: github.event_name == 'release' || github.event.commits.*.modified contains 'explorer/'
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +46,7 @@ jobs:
           path: dist/
 
   pypi-publish:
-    if: github.event_name == 'release' || github.event.commits.*.modified contains 'explorer/'
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs:
       - release-build
