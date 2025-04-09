@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='SQLMetadataR',
-    version='0.1.0',
+    version='0.1.01',
     description='A tool for extracting and analyzing metadata from SQLite databases.',
     author='Your Name',
     author_email='your.email@example.com',
