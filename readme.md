@@ -57,34 +57,6 @@ Command-line options include:
 - `--no-execute`: Skip executing example queries
 - `--query-results`, `-q`: Number of result rows per executed query
 
-## Folder Structure
-
-```
-SQLMetadataR/
-├── .gitignore
-├── dvd_benchmarked_data.json
-├── dvd_embedding_data.json
-├── dvd_metadata.json
-├── dvd_metadata_validation.json
-├── dvd_query_patterns.json
-├── dvd_schema.json
-├── dvd_semantic.json
-├── dvd_table_dict.json
-├── readme.md
-├── Datasets/
-│   ├── dvd.db
-└── explorer/
-    ├── __init__.py
-    ├── analyzers.py
-    ├── cli.py
-    ├── extractors.py
-    ├── models.py
-    ├── semantic_processor.py
-    ├── sql_explorer.md
-    ├── sql_explorer.py
-    └── __pycache__/
-```
-
 ## Documentation
 
 For detailed information on domain models, extraction methods, and components, refer to the sql_explorer.md file. In-code documentation and comments also provide guidance on how each module works.
