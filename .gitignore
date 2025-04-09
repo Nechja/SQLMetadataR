@@ -1,4 +1,6 @@
 /Datasets/database.db
+/Datasets/metadata.db
+/Datasets/dvd.db
 /dvd_metadata.json
 explorer/__pycache__/__init__.cpython-312.pyc
 explorer/__pycache__/analyzers.cpython-312.pyc
@@ -24,3 +26,5 @@ SQLMetadataR.egg-info/dependency_links.txt
 SQLMetadataR.egg-info/PKG-INFO
 SQLMetadataR.egg-info/SOURCES.txt
 SQLMetadataR.egg-info/top_level.txt
+*.json
+
