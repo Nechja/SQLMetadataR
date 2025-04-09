@@ -1,3 +1,4 @@
+[![Upload Python Package](https://github.com/Nechja/SQLMetadataR/actions/workflows/python-publish.yml/badge.svg)](https://github.com/Nechja/SQLMetadataR/actions/workflows/python-publish.yml)
 # SQLMetadataR
 
 SQLMetadataR is a tool for extracting and analyzing metadata from SQLite databases. It provides a comprehensive view of your database’s structure including tables, columns, indexes, foreign keys, and more. It also generates example SQL queries and analyzes relationships between tables.
