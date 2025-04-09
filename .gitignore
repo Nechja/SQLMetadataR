@@ -1,6 +1,7 @@
 /Datasets/database.db
 /Datasets/metadata.db
 /Datasets/dvd.db
+/Datasets/*.db
 /dvd_metadata.json
 explorer/__pycache__/__init__.cpython-312.pyc
 explorer/__pycache__/analyzers.cpython-312.pyc
