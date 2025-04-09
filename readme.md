@@ -72,4 +72,4 @@ This project is licensed under the Attribution-ShareAlike 4.0 International Lice
 
 ## Acknowledgements
 
-SQLMetadataR was developed to simplify the process of understanding SQLite database structures and metadata. Thank you for using the project!
+SQLMetadataR was developed to simplify the process of understanding SQLite database structures because it's faster than asking a DBA. Thank you for using the project!
