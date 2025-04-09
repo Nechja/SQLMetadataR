@@ -16,3 +16,6 @@ project_metadata.json
 project_schema.json
 project_semantic.json
 benchmark/what_is_benchmark.md
+benchmark/__pycache__/benchmark.cpython-312.pyc
+benchmark/__pycache__/cli.cpython-312.pyc
+benchmark/__pycache__/models.cpython-312.pyc
